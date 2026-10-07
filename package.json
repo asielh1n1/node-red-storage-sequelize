@@ -1,0 +1,56 @@
+{
+    "name": "node-red-storage-sequelize",
+    "version": "2.0.0",
+    "description": "Node-RED storage module AND context store backed by Sequelize: persists flows, credentials, settings, sessions, library and global/flow/node context in any database Sequelize supports",
+    "keywords": [
+        "node-red",
+        "node-red-plugin",
+        "storage",
+        "storage-plugin",
+        "context",
+        "context-storage",
+        "contextstore",
+        "sequelize",
+        "orm",
+        "postgres",
+        "postgresql",
+        "mysql",
+        "mariadb",
+        "mssql",
+        "sqlite",
+        "database"
+    ],
+    "license": "MIT",
+    "author": "Asiel Hernandez Valdes",
+    "type": "commonjs",
+    "main": "index.js",
+    "files": [
+        "index.js",
+        "lib/",
+        "README.md",
+        "LICENSE"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "peerDependencies": {
+        "sequelize": "^6.37.0"
+    },
+    "dependencies": {
+        "sequelize": "^6.37.0"
+    },
+    "optionalDependencies": {
+        "mariadb": "^3.2.0",
+        "mysql2": "^3.9.0",
+        "pg": "^8.11.0",
+        "pg-hstore": "^2.3.4",
+        "sqlite3": "^5.1.7",
+        "tedious": "^16.7.0"
+    },
+    "devDependencies": {
+        "sqlite3": "^5.1.7"
+    },
+    "scripts": {
+        "test": "node --test test/*.test.js"
+    }
+}

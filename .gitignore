@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Environment variables (contains credentials)
+.env
+.env.*
+!.env.example
+
+# Node-RED runtime data
+.node-red/
+node-red-data/
+
+# Local database files (SQLite is a supported Sequelize dialect)
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Build artifacts / caches
+dist/
+build/
+.cache/
+.eslintcache
+*.tsbuildinfo
