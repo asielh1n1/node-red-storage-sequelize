@@ -28,6 +28,7 @@ Node-RED installation.
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
   - [Environment variables](#environment-variables)
+  - [TLS and managed databases](#tls-and-managed-databases)
   - [settings.js](#settingsjs)
   - [Configuration reference](#configuration-reference)
 - [The context store explained](#the-context-store-explained)
@@ -233,6 +234,47 @@ For SQLite, point at a file instead of a host:
 NODE_RED_STORAGE_DIALECT=sqlite
 NODE_RED_STORAGE_STORAGE=/var/lib/nodered/flows.sqlite
 ```
+
+### TLS and managed databases
+
+Managed Postgres providers publish their connection string with
+`?sslmode=require`. Passing that URL straight through is enough — this module
+translates it for node-postgres, which otherwise rejects the handshake.
+
+The reason is a difference between libpq and node-postgres. `pg-connection-string`
+maps `sslmode=require` (also `prefer` and `no-verify`) to an **empty** `ssl`
+object, and node-postgres then applies Node's default of
+`rejectUnauthorized: true`, which **validates the certificate chain**. libpq does
+not verify in those modes. Since providers such as Supabase, Neon, Aiven or
+Heroku serve a certificate Node cannot chain on its own, the connection dies
+with:
+
+```text
+SequelizeConnectionError: self-signed certificate in certificate chain
+```
+
+To prevent that, a Postgres URL carrying an unverified `sslmode` is rewritten
+with `uselibpqcompat=true`, which makes `pg-connection-string` apply libpq
+semantics. Certificate validation is **not** disabled globally: the strict modes
+keep verifying, and they remain the recommended choice when the provider's CA is
+publicly trusted.
+
+| URL / setting | Behaviour |
+| --- | --- |
+| `...?sslmode=require` | TLS on, chain not verified. Normalised automatically. |
+| `...?sslmode=prefer`, `no-verify` | Same as above. Normalised automatically. |
+| `...?sslmode=verify-ca`, `verify-full` | Left untouched: the chain is verified. |
+| `...?uselibpqcompat=...` | Left untouched: you have taken control. |
+| No `sslmode`, but `NODE_RED_STORAGE_SSL=true` | TLS on, chain verified. Use `NODE_RED_STORAGE_SSL_REJECT_UNAUTHORIZED=false` for a self-signed certificate. |
+
+> `sslmode=no-verify` does **not** solve the problem on its own — it is
+> translated to `ssl: {}` just like `require`, which is why it is normalised too.
+
+When a connection URL is used, `NODE_RED_STORAGE_SSL` and
+`NODE_RED_STORAGE_SSL_REJECT_UNAUTHORIZED` are **ignored**. The URL is the more
+specific declaration and already carries its own TLS negotiation; letting the
+generic options override it would force `rejectUnauthorized` back on and undo the
+`sslmode`. They still apply to the host/username/password form.
 
 ### settings.js
 
@@ -614,6 +656,9 @@ Checklist before publishing:
 | `Specified key was too long` (MySQL) | A table from an older version has wider indexed columns | Handled automatically — see [Upgrading from an older version](#upgrading-from-an-older-version). |
 | `Key column 'keyHash' doesn't exist` | Same as above, mid-repair | Handled automatically; this line may appear in the log during the first start after upgrading. |
 | `Connection timed out` | Host/port unreachable | Check connectivity, host, port, firewall and `ssl`. |
+| `self-signed certificate in certificate chain` | `sslmode=require` in a Postgres URL | Handled automatically since 1.1.0 — see [TLS and managed databases](#tls-and-managed-databases). If it still appears, your URL already sets `uselibpqcompat`, or `NODE_RED_STORAGE_SSL=true` is overriding it: remove that variable. |
+| `The server does not support SSL connections` | `sslmode` set against a server without TLS | Drop the `sslmode` parameter, or use `NODE_RED_STORAGE_SSL=false`. |
+| Prepared statement errors with pgbouncer | Transaction pooling (port 6543) | Use the session pooler (port 5432) instead. |
 
 ## Compatibility
 

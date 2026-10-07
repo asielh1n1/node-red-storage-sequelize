@@ -1,6 +1,6 @@
 {
     "name": "node-red-storage-sequelize",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Node-RED storage module AND context store backed by Sequelize: persists flows, credentials, settings, sessions, library and global/flow/node context in any database Sequelize supports",
     "keywords": [
         "node-red",
@@ -57,6 +57,7 @@
     },
     "scripts": {
         "test": "node --test test/*.test.js",
+        "test:pg": "node --test test/*.test.js",
         "prepublishOnly": "npm test"
     }
 }
