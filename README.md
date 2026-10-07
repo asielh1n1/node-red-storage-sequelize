@@ -588,16 +588,15 @@ that driver is absent.
 ## Publishing
 
 ```bash
-cd packages/node-red-storage-sequelize
 npm login
 npm publish --access public
 ```
 
 Checklist before publishing:
 
-1. Bump `version` in `package.json`.
+1. Ensure `version` in `package.json` is the intended release (currently `1.0.0`).
 2. `npm pack --dry-run` lists only the intended files.
-3. Add a `LICENSE` file to accompany the `license` field.
+3. `LICENSE` is present to accompany the `license` field.
 
 ## Troubleshooting
 
